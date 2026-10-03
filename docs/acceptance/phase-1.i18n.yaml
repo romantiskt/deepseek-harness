@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for phase-1.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/acceptance/phase-1.md
+/phase-1-acceptance-record:
+  en: 9816b24efa70b502
+  zh: 97a45faaf506426a
+/phase-1-acceptance-record/delivered-scope:
+  en: 5c208ee3f557a8ce
+  zh: 4058cdc71ce0daa6
+/phase-1-acceptance-record/live-pilot-evidence:
+  en: 8ea0ca565606caa0
+  zh: 6939afc7ac5cf967
+/phase-1-acceptance-record/automated-and-browser-checks:
+  en: 687dc791a0ebcb78
+  zh: e2fed039d699ff99
+/phase-1-acceptance-record/remaining-boundaries:
+  en: a8246c508c53250e
+  zh: 2269e122573c190d

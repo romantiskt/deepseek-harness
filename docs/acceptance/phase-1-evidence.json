@@ -1,0 +1,60 @@
+{
+  "projectId": "33752122-e3f6-4dd0-bac5-ab5b231560a9",
+  "versionId": "befcb1dc-fdda-4ab1-ba5c-6495302cd747",
+  "requirementId": "dc1062b9-45b4-49e0-896a-5ecd7ded64f7",
+  "taskId": "d35918d6-b846-45da-9c55-f5b8bfff9c24",
+  "workspaceId": "30113888e88d5931da15c4e66f09a575",
+  "submission1": "5a50680a-7887-4959-8190-d078af9aabc3",
+  "case1": "08544309-7fbc-48b4-adfd-6c0a936cf80a",
+  "defect": "0d9a429f-b629-4679-a9c0-e792c08857f5",
+  "changeDevelopment": "1b17ac18-9103-429a-8ea1-2d98230611f0",
+  "commit2": "13650ba01f26415a652c991f959476c0763b494e",
+  "submission2": "65608330-02cd-44f4-b19d-5e563b702237",
+  "changeTesting": "87cddb88-42c2-4b40-b5ce-9b7bc67c68f9",
+  "case2": "5e167496-ed19-4536-b888-c0735eec3855",
+  "feedbackRequirement": "fcd15f37-08ec-4811-869c-9bdffa1c3d6b",
+  "closed": true,
+  "date": "2026-10-03",
+  "modelProvider": "Harness current DeepSeek configuration; real API calls",
+  "requirementSession": "rd-a1bd0d0f-e2fc-4e07-a37e-afb56ecee828",
+  "developmentSession": "rd-542c203e-280e-4c17-bb55-35a60a708068",
+  "commit1": "32f888757587efaaeb1928ec61f5ab88bd782b67",
+  "candidate1": ".local/pilot-artifacts/candidate-1.tar.gz",
+  "candidate2": ".local/pilot-artifacts/candidate-2.tar.gz",
+  "releaseMode": "isolated filesystem distribution only; no production deployment",
+  "recheck": {
+    "sourceVersionId": "befcb1dc-fdda-4ab1-ba5c-6495302cd747",
+    "versionId": "bb318f82-c19e-4865-bde7-450a7ef9ab33",
+    "requirementId": "e6aaa0bd-5f91-4069-a16e-fa6b9f61498b",
+    "taskId": "de315122-200f-4f5d-b3ff-54686d632ee5",
+    "changeId": "93df21ed-d6c9-4b8b-96f8-89addf76c9dd",
+    "submissionId": "5ad4476e-6e76-4ce0-a8f2-83fdf8910789",
+    "feedbackId": "0055c835-7fe7-4269-86d5-0f588e7ebcdb",
+    "commit": "13650ba01f26415a652c991f959476c0763b494e",
+    "baseline": 2,
+    "passedNodes": 31
+  },
+  "keylessReplay": "pnpm run test:rd:integration",
+  "finalVerificationDate": "2026-10-04",
+  "browserVerification": {
+    "viewportWidths": [
+      1440,
+      960,
+      720
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "draftRestoredAfterReload": true,
+    "draftIsolatedByContext": true,
+    "focusRestoredAfterReload": true,
+    "latestReplyVisible": true,
+    "horizontalOverflowAt720": false,
+    "screenshots": [
+      "output/acceptance/phase-1-workbench.jpg",
+      "output/acceptance/phase-1-narrow.jpg",
+      "output/acceptance/phase-1-dark.jpg"
+    ]
+  }
+}

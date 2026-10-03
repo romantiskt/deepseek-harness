@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for ai-rd-pilot.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/operations/ai-rd-pilot.md
+/ai-r-d-workbench-local-pilot-guide:
+  en: c68b2421e79ace80
+  zh: 849deeaa0d75a5b5
+/ai-r-d-workbench-local-pilot-guide/1-start-the-workbench:
+  en: 3ca9e102c6b2ce65
+  zh: 5d2a2351c1bf0019
+/ai-r-d-workbench-local-pilot-guide/2-create-members-and-choose-a-model:
+  en: 628cecb6ef8058fa
+  zh: bdfaeb030aff366b
+/ai-r-d-workbench-local-pilot-guide/3-complete-one-version:
+  en: 7792e5c95686cbb8
+  zh: 28d265be7f030d26
+/ai-r-d-workbench-local-pilot-guide/4-handle-a-scope-change:
+  en: f0dfc4198d8b62f7
+  zh: 54e68962c4c720b3
+/ai-r-d-workbench-local-pilot-guide/recovery-reference:
+  en: 6b092c7c6c4a67f5
+  zh: ba2c9658183d2af5
+/ai-r-d-workbench-local-pilot-guide/pilot-limits:
+  en: 0e29648b1bf2cdb8
+  zh: 98c0c213c7b33774

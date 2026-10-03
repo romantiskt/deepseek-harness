@@ -1,0 +1,18 @@
+# Additive local workflow profile. Data is isolated by the chosen DSH_HOME.
+- insert:
+    - id: rd-workflow
+      name: '@deepseek-ai/dsh-rd-workflow'
+      config:
+        databasePath: !!js "process.env.DSH_HOME + '/rd/workflow.sqlite'"
+    - id: rd-runtime
+      name: '@deepseek-ai/dsh-rd-runtime'
+      config:
+        scratchPath: !!js "process.env.DSH_HOME + '/rd/scratch'"
+        maxFileBytes: 524288
+        maxContextChars: 64000
+        maxMessages: 200
+        maxOutputBytes: 1048576
+        checkTimeoutMs: 120000
+        processGraceMs: 3000
+    - id: rd-workbench
+      name: '@deepseek-ai/dsh-client-rd-workbench'

@@ -46,3 +46,6 @@ worktrees/
 .agents/worktrees/
 .typert-*/
 native/system/test/bin/
+
+# Local R&D profile, credentials, pilot checkouts and SQLite state.
+.local/

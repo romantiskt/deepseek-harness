@@ -1,0 +1,7 @@
+# Bilingual-pair consistency record for upstream-baseline.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/operations/upstream-baseline.md
+/deepseek-harness-source-baseline:
+  en: d105fce4082d353d
+  zh: 77b7bec3dc604ec5

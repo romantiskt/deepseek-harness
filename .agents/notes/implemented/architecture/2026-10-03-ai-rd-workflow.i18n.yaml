@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-03-ai-rd-workflow.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-03-ai-rd-workflow.md
+/agent-note-additive-local-r-d-workflow-in-harness:
+  en: f528475125cdab56
+  zh: 02000a9ebfbfd725
+/agent-note-additive-local-r-d-workflow-in-harness/problem:
+  en: f7a849fd6ac383c8
+  zh: 4b5da9d65722935d
+/agent-note-additive-local-r-d-workflow-in-harness/decision:
+  en: ebf2d0fb348cf5aa
+  zh: b2667b6e888e3d82
+/agent-note-additive-local-r-d-workflow-in-harness/alternatives-considered:
+  en: 2bc836049b4a066e
+  zh: 2e6b9a34bda92509
+/agent-note-additive-local-r-d-workflow-in-harness/consequences:
+  en: c87d24d28171eeea
+  zh: ac4ae9eaff6618f2

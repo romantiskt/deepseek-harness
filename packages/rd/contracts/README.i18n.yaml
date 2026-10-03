@@ -1,0 +1,46 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/rd/contracts/README.md
+/:
+  en: 2bc095b71031c263
+  zh: 1182d18308d4281f
+/deepseek-ai-dsh-rd-contracts:
+  en: 8c6d3ef53f62f3f2
+  zh: cf4cc5cac79f917c
+/deepseek-ai-dsh-rd-contracts/summary:
+  en: 5602aa6ff6661d54
+  zh: 912cabec3eefed85
+/deepseek-ai-dsh-rd-contracts/table-of-contents:
+  en: 0acac2a25e915e4e
+  zh: b660e866773bf718
+/deepseek-ai-dsh-rd-contracts/use-this-package:
+  en: 9813b0f1bedc5069
+  zh: 4a5c52150e5aaa2c
+/deepseek-ai-dsh-rd-contracts/understand-the-implementation:
+  en: a038af7769b41207
+  zh: 4ce2f076b606f73b
+/deepseek-ai-dsh-rd-contracts/further-exploration:
+  en: c852bec03388fa9f
+  zh: fe51e072e9687c82
+/deepseek-ai-dsh-rd-contracts/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-rd-contracts/model-experience/workflow-context:
+  en: 6d254199dde8eec4
+  zh: 9b56368a83f0a6ca
+/deepseek-ai-dsh-rd-contracts/model-experience/workflow-context/what-the-model-sees:
+  en: 8545419c203ae8f0
+  zh: f8ab5d6a9c2fc99d
+/deepseek-ai-dsh-rd-contracts/model-experience/workflow-context/token-effect:
+  en: 63dfa67cd53d1908
+  zh: c57f68bcdc843e71
+/deepseek-ai-dsh-rd-contracts/model-experience/workflow-context/kv-cache-effect:
+  en: ebaa9ddcf9c518e4
+  zh: d5c360dc57c7539c
+/deepseek-ai-dsh-rd-contracts/known-limitations-and-deferred-work:
+  en: 12b805e6f575b31c
+  zh: 4c24e9e329314da9
+/deepseek-ai-dsh-rd-contracts/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

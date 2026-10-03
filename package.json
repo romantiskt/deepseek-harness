@@ -201,7 +201,11 @@
     "mock:llm": "node --import tsx packages/test-support/llm-mock-server/src/bin.ts",
     "start:web": "node --import tsx/esm apps/cli/src/bin.ts web",
     "dev:web": "tsx scripts/dev-web.ts --poll",
-    "postinstall": "node scripts/install-lefthook.mjs"
+    "postinstall": "node scripts/install-lefthook.mjs",
+    "build:rd": "pnpm run build:native-system && tsc -b tsconfig.host.json && tsdown --config-loader native --env.DSH_BUILD_FACE host && tsc -b tsconfig.client.json && tsdown --config-loader native --env.DSH_BUILD_FACE client && pnpm --filter @deepseek-ai/dsh-web-frontend run build",
+    "dev:rd": "node scripts/rd/start.mjs",
+    "test:rd": "vitest run packages/rd packages/client/rd-workbench --maxWorkers=2 --testTimeout=20000",
+    "test:rd:integration": "vitest run --config tests/rd/vitest.config.ts"
   },
   "devDependencies": {
     "@deepseek-ai/dsh-agent": "workspace:*",
