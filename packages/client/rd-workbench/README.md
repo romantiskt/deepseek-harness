@@ -28,6 +28,8 @@ Members can create requirements, plan versions and follow review, development an
 
 The bundle mounts this package without package-specific configuration. Sign in to the local project, select a version and use the stage strip to browse its nodes. Browsing never changes business status.
 
+The first visit creates an administrator only when the project has no members. Later visits use existing local accounts. Invalid credentials show retry guidance without clearing the form; expired sessions ask the member to sign in again. Account instructions are in the [pilot guide](../../../docs/operations/ai-rd-pilot.md#members).
+
 ---
 
 <a id="understand-the-implementation"></a>

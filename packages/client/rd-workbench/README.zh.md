@@ -28,6 +28,8 @@ kind: 'package-reference'
 
 Bundle 无需本包专属配置即可挂载。登录本地项目后选择版本，通过阶段栏浏览节点。浏览操作不会改变业务状态。
 
+项目没有成员时，首次访问才创建管理员。后续使用已有本地账号登录。账号或密码错误会显示重试说明并保留输入；会话失效会提示重新登录。账号使用说明见[试运行指南](../../../docs/operations/ai-rd-pilot.zh.md#members)。
+
 ---
 
 <a id="understand-the-implementation"></a>

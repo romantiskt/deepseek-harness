@@ -26,6 +26,8 @@ On first use, create a local administrator with a password of at least 12 charac
 
 This checkout includes an isolated acceptance project. Its test-only accounts are stored in `.local/pilot-access.json` with private file permissions. They are local fixtures, not enterprise identities. Do not publish that file.
 
+The local administrator uses the file's top-level `username` and matching `password`; `members` contains separate product, developer and tester accounts. The existing-project login page requires an existing account and cannot create a member. Invalid credentials retain the inputs and ask the member to check them; sessions expire after 12 hours and require another sign-in.
+
 <a id="workflow"></a>
 ## 3. Complete one version
 

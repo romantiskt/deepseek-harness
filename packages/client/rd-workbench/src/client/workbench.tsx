@@ -16,7 +16,7 @@ import type { ChatView } from './chat-model.ts'
 import { Operations } from './operations.tsx'
 import type { ModelView } from './model.ts'
 import type { RdKey } from './locales.ts'
-import { filterArtifacts, readDraft } from './presentation.ts'
+import { filterArtifacts, loginErrorKey, readDraft } from './presentation.ts'
 import css from './workbench.module.css'
 
 /** Explicit callbacks and one host-state observable for the workbench entry. */
@@ -206,6 +206,7 @@ export function Workbench(props: WorkbenchProps): ReactNode {
     const element = transcript.current
     if (element && followLatest.current) element.scrollTop = element.scrollHeight
   }, [chat.messages, chat.status])
+  const authenticationError = loginErrorKey(model.error)
   if (model.status === 'loading') return <div className={css.center}>{t('loading')}</div>
   if (model.status === 'error')
     return (
@@ -226,7 +227,7 @@ export function Workbench(props: WorkbenchProps): ReactNode {
         <div className={css.loginCard}>
           <span className={css.brandMark}>✦</span>
           <h1>{t(model.status === 'setup' ? 'setup' : 'login')}</h1>
-          <p>{t('setupHint')}</p>
+          <p>{t(model.status === 'setup' ? 'setupHint' : 'loginHint')}</p>
           <form
             className={css.form}
             onSubmit={(event) => {
@@ -245,11 +246,11 @@ export function Workbench(props: WorkbenchProps): ReactNode {
               <input name="username" required autoComplete="username" />
             </label>
             <label>
-              {t('password')}
+              {t(model.status === 'setup' ? 'password' : 'loginPassword')}
               <input
                 name="password"
                 type="password"
-                minLength={12}
+                minLength={model.status === 'setup' ? 12 : undefined}
                 required
                 autoComplete={model.status === 'setup' ? 'new-password' : 'current-password'}
               />
@@ -268,7 +269,7 @@ export function Workbench(props: WorkbenchProps): ReactNode {
             )}
             {model.error && (
               <p className={css.error} role="alert">
-                {model.error}
+                {authenticationError ? t(authenticationError) : model.error}
               </p>
             )}
             <Button variant="primary" type="submit" disabled={model.busy}>

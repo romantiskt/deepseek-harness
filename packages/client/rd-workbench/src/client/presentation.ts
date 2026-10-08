@@ -1,4 +1,12 @@
-/** Pure scope projection used by document panels and artifact actions. */
+/** Pure presentation helpers for authentication, scoped artifacts and draft content. */
+/** @param message - host authentication failure. @returns its localized guidance key, if recognized. */
+export function loginErrorKey(message: string): 'invalidLogin' | 'sessionExpired' | undefined {
+  const code = message.replace(/ \(gateway\/internal\)$/, '')
+  if (code === 'INVALID_LOGIN') return 'invalidLogin'
+  if (code === 'UNAUTHENTICATED') return 'sessionExpired'
+  return undefined
+}
+
 /** @param artifacts - immutable artifacts. @param scope - visible business context. @returns only artifacts owned by that context. */
 export function filterArtifacts<
   T extends { scope: { projectId: string; versionId?: string | undefined; requirementId?: string | undefined } },
