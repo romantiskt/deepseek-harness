@@ -40,5 +40,5 @@ run([
   '127.0.0.1',
   '--port',
   process.env.AI_RD_PORT ?? '3091',
-  '--no-open',
+  ...(process.env.AI_RD_OPEN_BROWSER === '1' ? [] : ['--no-open']),
 ])

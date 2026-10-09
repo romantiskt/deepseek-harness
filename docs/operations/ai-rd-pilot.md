@@ -7,6 +7,10 @@ This tutorial starts the workbench on a trusted local machine and walks a versio
 <a id="start"></a>
 ## 1. Start the workbench
 
+On macOS, double-click [启动研发工作台.command](../../启动研发工作台.command) in Finder at the checkout root. The script checks Node, prepares missing dependencies or build outputs, starts the workbench through the existing launcher, and opens the browser. Keep the terminal window open; press Ctrl+C to stop the server. Subsequent launches verify and reuse a service started by the same script; another program occupying the port causes an error.
+
+Logs are stored in the Harness home as `launcher-<port>.log` and include the private bootstrap URL. After changing source, stop the server and run `AI_RD_REBUILD=1 ./启动研发工作台.command` to rebuild. `AI_RD_OPEN_BROWSER=0` disables automatic browser opening.
+
 Use Node 22.23.1 or a compatible version allowed by the root manifest, and the pinned pnpm 11.7.0. Run these commands from this checkout. The complete build includes the upstream host and browser; reserve sufficient memory for the first build.
 
 ```sh
