@@ -41,7 +41,7 @@ Bundle 无需本包专属配置即可挂载。登录本地项目后选择版本�
 <details>
 <summary>实现细节——点击展开</summary>
 
-[模型层](src/client/model.ts)调用认证后的远程方法，在结果不明时保留幂等键。[工作台](src/client/workbench.tsx)显示实际 Harness 会话、持久化产物和角色表单。源码修改由主机运行时执行。对话持有原生 Session 引用，使用共享 Conversation 渲染器；切换上下文、任务或基线时释放先前订阅。业务输入框仍通过认证后的运行时提交。
+[模型层](src/client/model.ts)调用认证后的远程方法，在结果不明时保留幂等键。[工作台](src/client/workbench.tsx)显示实际 Harness 会话、持久化产物和角色表单。源码修改由主机运行时执行。对话持有原生 Session 引用，使用共享 Conversation 渲染器；切换上下文、任务或基线时释放先前订阅。业务输入框仍通过认证后的运行时提交。 首次选择和重连会先等待主机会话目录加载，再持有恢复的会话引用。
 
 </details>
 

@@ -52,6 +52,7 @@ export async function apply(ctx: Context): Promise<void> {
         stop: async (scope, task) => {
           unwrap(await ctx.remote.rdRuntime.stop(model.credential(), scope, task))
         },
+        refreshSessions: () => ctx.sessions.refresh(),
         watch: (id, update, failed) => {
           const retained = ctx.sessions.retain(id as SessionId, { source: 'rdWorkbench' })
           reference.set(retained)
@@ -128,7 +129,10 @@ export async function apply(ctx: Context): Promise<void> {
                 chat.dispose()
                 await model.signOut()
               },
-              refresh: () => model.load(),
+              refresh: async () => {
+                await model.load()
+                chat.reconnect()
+              },
               execute: (payload, scope, revision) => model.execute(payload, scope, revision),
               openHarness: () => {
                 ctx.layout.selectPanel(null)

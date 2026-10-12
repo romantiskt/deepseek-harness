@@ -11,6 +11,8 @@ export interface ChatApi {
   prompt(scope: string, text: string, task: string): Promise<string>
   /** Await quiescence of the selected execution. */
   stop(scope: string, task: string): Promise<void>
+  /** Load the Host session catalog before retaining a restored or newly created identity. */
+  refreshSessions(): Promise<void>
   /** Retain native history and status until the returned disposer runs. */
   watch(id: string, update: (running: boolean) => void, failed: (error: string) => void): () => void
 }
@@ -99,6 +101,7 @@ export class ChatModel {
     if (!selected) return
     try {
       const value = await this.api.chat(selected.scope, selected.task)
+      if (value.sessionId) await this.api.refreshSessions()
       if (generation !== this.generation) return
       this.state.set({ ...value, loading: false, context: this.state.getSnapshot().context })
       this.attach(value.sessionId, generation)
@@ -118,8 +121,11 @@ export class ChatModel {
     if (!selected || this.sending || this.state.getSnapshot().loading || !text.trim()) return false
     this.sending = true
     this.state.set({ ...this.state.getSnapshot(), status: 'running', error: '' })
+    let admitted = false
     try {
       const id = await this.api.prompt(selected.scope, text, selected.task)
+      admitted = true
+      await this.api.refreshSessions()
       if (generation === this.generation) {
         const previous = this.state.getSnapshot().sessionId
         this.state.set({ ...this.state.getSnapshot(), sessionId: id })
@@ -128,7 +134,8 @@ export class ChatModel {
       return true
     } catch (error) {
       this.fail(error, generation)
-      return false
+      // A display failure must not invite resubmitting an already admitted message.
+      return admitted
     } finally {
       if (generation === this.generation) this.sending = false
     }

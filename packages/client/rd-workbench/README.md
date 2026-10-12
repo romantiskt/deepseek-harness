@@ -41,7 +41,7 @@ The next-action guide locates the first unfinished node without approving it. Be
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The [model](src/client/model.ts) calls authenticated Remote methods and preserves idempotency keys across ambiguous failures. The [workbench](src/client/workbench.tsx) displays actual Harness transcripts, durable artifacts and role-specific forms. Source edits run on the host runtime. The conversation retains a native Session reference and uses the shared Conversation renderer; switching scope, task or baseline releases the previous subscription. The workflow composer continues to submit through the authenticated runtime.
+The [model](src/client/model.ts) calls authenticated Remote methods and preserves idempotency keys across ambiguous failures. The [workbench](src/client/workbench.tsx) displays actual Harness transcripts, durable artifacts and role-specific forms. Source edits run on the host runtime. The conversation retains a native Session reference and uses the shared Conversation renderer; switching scope, task or baseline releases the previous subscription. The workflow composer continues to submit through the authenticated runtime. Initial selection and reconnect await the Host session catalog before retaining a restored identity.
 
 </details>
 
