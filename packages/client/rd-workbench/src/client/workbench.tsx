@@ -1,9 +1,10 @@
 /** Conversation-led project page; all persisted actions go through the host. */
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react'
+import { useEffect, useState, type ReactNode, type CSSProperties } from 'react'
 import clsx from 'clsx'
 import { Button, Modal, MarkdownText, IconPluginPinwheelOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
 import type {
   PropsRuntime,
+  PropsRenderFactories,
   PropsLocale,
   PropsStore,
   InjectFace,
@@ -28,7 +29,9 @@ export interface WorkbenchFace {
     | 'workspaces'
     | 'testing'
   /** Current authorized business data. */ hooks: { model: HostObservable<ModelView>; chat: HostObservable<ChatView> }
-  /** Read this exact conversation scope. */ selectContext: (scope: WorkflowScope, task: string) => void
+  /** Read this exact conversation scope. */ selectContext: (scope: WorkflowScope, task: string, baseline: number) => void
+  /** Open the generated project or version directory on the execution host. */
+  openDocumentFolder: (scope: WorkflowScope) => Promise<boolean>
   /** Admit a human prompt. */ send: (text: string) => Promise<boolean>
   /** Stop the selected execution. */ stop: () => Promise<void>
   /** Register a validated current checkout. */ registerWorkspace: (path: string, branch: string) => Promise<boolean>
@@ -53,7 +56,7 @@ export interface WorkbenchFace {
   /** Return to the upstream Harness conversation and settings. */ openHarness: () => void
 }
 /** Framework-derived page properties. */
-export type WorkbenchProps = PropsRuntime<'main'> &
+export type WorkbenchProps = PropsRuntime<'main'> & PropsRenderFactories &
   PropsLocale<'rd'> &
   PropsStore<ReturnType<typeof createWorkbenchStore>> &
   InjectFace<WorkbenchFace>
@@ -180,9 +183,6 @@ export function Workbench(props: WorkbenchProps): ReactNode {
   const selection = props.useStore(v => v)
   const chat = props.useChat(v => v)
   const [dialog, setDialog] = useState<ActionDialog | null>(null)
-  // Follow new replies only while the reader remains near the latest message.
-  const transcript = useRef<HTMLDivElement>(null)
-  const followLatest = useRef(true)
   const selectedVersion =
     model.snapshot?.project.versions.find(v => v.id === selection.versionId) ?? model.snapshot?.project.versions[0]
   const selectedRequirement = model.snapshot?.project.requirements.find(
@@ -199,13 +199,10 @@ export function Workbench(props: WorkbenchProps): ReactNode {
     })
     : ''
   useEffect(() => {
-    if (contextJson) props.selectContext(JSON.parse(contextJson) as WorkflowScope, selection.taskId)
+    if (contextJson) props.selectContext(
+      JSON.parse(contextJson) as WorkflowScope, selection.taskId, selectedVersion?.baselines.at(-1)?.number ?? 0,
+    )
   }, [contextJson, selection.taskId, selectedVersion?.baselines.length, props.selectContext])
-  useEffect(() => { followLatest.current = true }, [contextJson, selection.taskId])
-  useLayoutEffect(() => {
-    const element = transcript.current
-    if (element && followLatest.current) element.scrollTop = element.scrollHeight
-  }, [chat.messages, chat.status])
   const authenticationError = loginErrorKey(model.error)
   if (model.status === 'loading') return <div className={css.center}>{t('loading')}</div>
   if (model.status === 'error')
@@ -296,7 +293,16 @@ export function Workbench(props: WorkbenchProps): ReactNode {
   const node = stage.nodes.find(n => n.id === selection.nodeId) ?? stage.nodes[0]
   if (!node) return <div>{t('empty')}</div>
   const artifacts = filterArtifacts(project.artifacts, scope)
-  const versionRequirements = project.requirements.filter(r => version?.requirementIds.includes(r.id))
+  const next = version?.status === 'closed' ? undefined : stages.flatMap((s, index) =>
+    s.nodes.map(n => ({ ...n, stage: index, stageTitle: s.title })))
+    .find(n => !['passed', 'not-applicable'].includes(version?.nodes[n.id]?.outcome ?? 'pending'))
+  const stageDocumentName = `${stage.id}.md`
+  const documentDirectory = model.snapshot.documentDirectory
+  /** Resolve the generated file using the same filename encoding as the workflow exporter. */
+  const artifactPath = (id: string) => `${documentDirectory}/artifacts/${encodeURIComponent(id).replaceAll('.', '%2E')}.md`
+  const visibleDirectory = documentDirectory && version
+    ? `${documentDirectory}/versions/${encodeURIComponent(version.id).replaceAll('.', '%2E')}` : documentDirectory
+  const versionRequirements = project.requirements.filter(r => version ? version.requirementIds.includes(r.id) : !r.versionId)
   const memberOptions = members.map(m => ({ value: m.id, label: m.name }))
   const resultOptions = ['passed', 'changes', 'rejected', ...(node.id === '10' ? ['not-applicable'] : [])].map(
     value => ({ value, label: t(value as RdKey) }),
@@ -449,7 +455,7 @@ export function Workbench(props: WorkbenchProps): ReactNode {
             <div>
               <strong>{s.title}</strong>
               <small>
-                {s.nodes.filter(n => version?.nodes[n.id]?.outcome === 'passed').length} / {s.nodes.length}
+                {s.nodes.filter(n => ['passed', 'not-applicable'].includes(version?.nodes[n.id]?.outcome ?? 'pending')).length} / {s.nodes.length}
               </small>
             </div>
           </button>
@@ -498,6 +504,16 @@ export function Workbench(props: WorkbenchProps): ReactNode {
           {t('refresh')}
         </Button>
       </div>
+      <div className={css.workflowGuide}>
+        <div>
+          <strong>{version ? next ? `${t('nextStep')} · ${next.stageTitle} / ${next.title}` : t('workflowComplete') : t('startHint')}</strong>
+          <p>{version ? next ? t('reviewHint') : t('completeHint') : t('chatHint')}</p>
+        </div>
+        {version && next && <Button size="sm" onClick={() => { actions.stage(next.stage, next.id); actions.tab('nodes') }}>
+          {t('continueWorkflow')}
+        </Button>}
+        {!version && <Button size="sm" disabled={!actor.roles.includes('product')} onClick={newVersion}>{t('newVersion')}</Button>}
+      </div>
       {model.error && (
         <div className={css.error} role="alert">
           {model.error}
@@ -518,28 +534,11 @@ export function Workbench(props: WorkbenchProps): ReactNode {
               {t(selection.focus ? 'restore' : 'focus')}
             </Button>
           </div>
-          <div className={css.chatBody} ref={transcript} data-testid="rd-chat-transcript" onScroll={(event) => {
-            const element = event.currentTarget
-            followLatest.current = element.scrollHeight - element.scrollTop - element.clientHeight < 96
-          }}>
+          <div className={css.chatBody} data-testid="rd-chat-transcript">
             {chat.loading ? (
               <p>{t('loading')}</p>
-            ) : chat.messages.length ? (
-              chat.messages.map(message => (
-                <article className={clsx(css.message, message.role === 'user' && css.userMessage)} key={message.id}>
-                  <strong>
-                    {t(message.role === 'user' ? 'you' : message.role === 'system' ? 'system' : 'assistant')}
-                  </strong>
-                  {message.role === 'assistant' ? (
-                    <MarkdownText
-                      text={message.text}
-                      labels={{ code: { copyLabel: t('copy'), copiedLabel: t('copied') }, footnotes: t('footnotes') }}
-                    />
-                  ) : (
-                    <div>{message.text}</div>
-                  )}
-                </article>
-              ))
+            ) : chat.sessionId ? (
+              props.renderFactorySlot('rd.conversation', {})
             ) : (
               <div className={css.welcome}>
                 <span className={css.heroMark}>✦</span>
@@ -565,7 +564,6 @@ export function Workbench(props: WorkbenchProps): ReactNode {
                 {chat.error}
               </p>
             )}
-            {chat.status === 'running' && <p className={css.muted}>{t('thinking')}</p>}
           </div>
           <div className={css.composer}>
             <div className={css.contextChips}>
@@ -608,7 +606,6 @@ export function Workbench(props: WorkbenchProps): ReactNode {
                   variant="primary"
                   disabled={!draft.trim() || chat.loading}
                   onClick={() => {
-                    followLatest.current = true
                     void props.send(draft).then((ok) => {
                       if (ok) actions.compose(scopeKey, '')
                     })
@@ -654,7 +651,7 @@ export function Workbench(props: WorkbenchProps): ReactNode {
                       <h2>{stage.title}</h2>
                       <span>{stage.nodes.length}</span>
                     </div>
-                    <p className={css.muted}>{t('reviewHint')}</p>
+                    <p className={css.muted}>{t('recordHint')}</p>
                     <div className={css.nodeList}>
                       {stage.nodes.map(n => (
                         <button
@@ -676,6 +673,10 @@ export function Workbench(props: WorkbenchProps): ReactNode {
                     <div className={css.nodeAction}>
                       <strong>{node.title}</strong>
                       <p>{version?.nodes[node.id]?.note ?? t('noSelection')}</p>
+                      {node.mode === 'derived' && node.id !== '11' && <p className={css.muted}>
+                        {t(stage.id === 'requirements' ? 'derivedRequirements' : stage.id === 'development' ? 'derivedDevelopment'
+                          : stage.id === 'testing' ? 'derivedTesting' : stage.id === 'release' ? 'derivedRelease' : 'derivedFeedback')}
+                      </p>}
                       {node.mode !== 'derived' && (
                         <Button
                           variant="primary"
@@ -699,8 +700,22 @@ export function Workbench(props: WorkbenchProps): ReactNode {
                     </div>
                   </>
                 )}
-                {selection.tab === 'artifacts' &&
-                  (artifacts.length ? (
+                {selection.tab === 'artifacts' && <>
+                  <div className={css.documentActions}>
+                    {documentDirectory && <Button size="sm" disabled={model.busy} onClick={() => { void props.openDocumentFolder(scope) }}>
+                      {t('documentFolder')}
+                    </Button>}
+                    <Button size="sm" disabled={model.busy} onClick={() => { open('newDocument', [
+                      { key: 'title', labelKey: 'title' }, { key: 'text', labelKey: 'markdownContent', multiline: true },
+                    ], values => ({ type: 'artifact.createRevision', title: values.title ?? '', text: values.text ?? '', kind: 'document' })) }}>
+                      {t('newDocument')}
+                    </Button>
+                  </div>
+                  {visibleDirectory && <div className={css.documentPath}>
+                    <strong>{t('documentPath')}</strong><p>{visibleDirectory}</p>
+                    {version && <p>{t('stageDocument')} · {stageDocumentName}</p>}
+                  </div>}
+                  {artifacts.length ? (
                     artifacts.toReversed().map(a => (
                       <details className={css.artifact} key={a.id}>
                         <summary>
@@ -716,8 +731,11 @@ export function Workbench(props: WorkbenchProps): ReactNode {
                             }}
                           />
                         ) : (
-                          <pre>{a.text}</pre>
+                          <MarkdownText text={a.text} labels={{ code: { copyLabel: t('copy'), copiedLabel: t('copied') }, footnotes: t('footnotes') }} />
                         )}
+                        {documentDirectory && <p className={css.documentPath}>
+                          {artifactPath(a.id)}
+                        </p>}
                         {a.kind === 'draft.requirement' &&
                           !project.artifacts.some(saved => saved.kind === `draft.saved:${a.id}`) &&
                           actor.roles.includes('product') && (
@@ -779,7 +797,7 @@ export function Workbench(props: WorkbenchProps): ReactNode {
                     ))
                   ) : (
                     <div className={css.empty}>{t('noArtifacts')}</div>
-                  ))}
+                  )}</>}
                 {selection.tab === 'activity' &&
                   project.activities.toReversed().map(a => (
                     <div className={css.activity} key={a.id}>

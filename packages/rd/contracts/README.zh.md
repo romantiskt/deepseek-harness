@@ -37,7 +37,7 @@ kind: 'package-library'
 <details>
 <summary>实现细节——点击展开</summary>
 
-[记录声明](src/types.ts)定义不可变范围引用。Zod 先校验不可信输入，再由工作流检查角色和生命周期。
+[记录声明](src/types.ts)定义不可变范围引用。Zod 先校验不可信输入，再由工作流检查角色和生命周期。`WorkbenchSnapshot.documentDirectory` 标识生成的 Markdown 目录；内存仓库返回空字符串。该字段是响应元数据，不存入项目记录。
 
 </details>
 

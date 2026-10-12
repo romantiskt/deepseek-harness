@@ -196,7 +196,7 @@ export function ConversationContent(props: ConversationContentProps) {
     >
       <div className={css.scrollBody} data-conversation-scroll="">
         {sessionId === undefined ? null : <Views />}
-        {composerSeat}
+        {props.hideComposer ? null : composerSeat}
       </div>
       <WidthControls container={body} phase={phase} />
     </div>

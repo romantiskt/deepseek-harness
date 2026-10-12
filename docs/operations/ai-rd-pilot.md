@@ -28,14 +28,14 @@ The default home is `.local/harness-home`. An explicit `DSH_HOME` selects anothe
 
 On first use, create a local administrator with a password of at least 12 characters. The administrator adds product, developer and tester accounts. Each member signs in with their own account; the server owns roles. Use Harness settings to configure an available model and credentials.
 
-This checkout includes an isolated acceptance project. Its test-only accounts are stored in `.local/pilot-access.json` with private file permissions. They are local fixtures, not enterprise identities. Do not publish that file.
+New installations contain no sample versions, requirements or evidence. An existing local installation may keep its member access details in the private `.local/pilot-access.json` file. These are local identities; do not publish that file.
 
 The local administrator uses the file's top-level `username` and matching `password`; `members` contains separate product, developer and tester accounts. The existing-project login page requires an existing account and cannot create a member. Invalid credentials retain the inputs and ask the member to check them; sessions expire after 12 hours and require another sign-in.
 
 <a id="workflow"></a>
 ## 3. Complete one version
 
-The stage strip changes what you view. Only explicit business actions advance the workflow. Keep the AI conversation visible and use the adjacent nodes, artifacts and activity panels.
+The stage strip changes what you view. Only explicit business actions advance the workflow. The next-action guide locates the first unfinished node, counting justified not-applicable reviews as complete. Before creating a version, you can select a requirement from the unscheduled pool. The conversation uses native Harness reasoning, tool cards and streaming text; the adjacent panels show nodes, artifacts and activity.
 
 1. Create a version. Discuss a requirement with AI, edit the structured draft, then save it into the requirement pool or the current version. Requirement review and version membership are separate actions.
 2. Record impact analysis and technical design. Developers review the technical proposal, testers review cases, and product reviews interaction. Security review may be marked not applicable with a reason. Product freezes the reviewed scope. Revising technical evidence reopens its review.
@@ -44,6 +44,12 @@ The stage strip changes what you view. Only explicit business actions advance th
 5. Review and commit the candidate in your terminal. The platform does not commit or push. Complete the task, then record self-test, code review, CI and integration evidence with the same full commit SHA. Submission requires that exact clean HEAD, build reference, environment and self-test report.
 6. Testers record cases and defects. Failed testing returns development. Record the fix commit, renew candidate reviews and submit a new batch. Retest defects on the new batch; old results do not transfer. Test exit requires passed cases and closed defects. Product records UAT separately; rejected UAT returns development for a new batch.
 7. Product approves release readiness. Record real externally produced artifacts, gray release, analysis, full release and verification. The platform only records evidence; it never deploys. Add outcome analysis, a follow-up requirement, retrospective and knowledge before closure. Closed versions cannot resume release.
+
+### Open stage documents
+
+In the artifact panel, choose **Save stage document** or ask AI to save the current analysis as a Markdown artifact. Saving material does not pass a review. Use **Open artifact folder** to open the project or selected version folder on the host. The panel also shows a copyable absolute path.
+
+The default project directory is `.local/harness-home/rd/artifacts/<project-id>/`. Its `README.md` links to all documents, and each version has six stage `.md` files. Documents include local folder links and macOS, Linux and Windows opening commands. [Storage and recovery semantics](../../packages/rd/workflow/README.md#use-this-package) describe generated indexes, immutable revisions and retries.
 
 <a id="changes"></a>
 ## 4. Handle a scope change

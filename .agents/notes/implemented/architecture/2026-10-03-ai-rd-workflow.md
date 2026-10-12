@@ -16,6 +16,10 @@ Requirement revisions, materials and baselines retain immutable references. Tech
 
 An owned Harness session captures requirement, version, baseline and task. Product sessions receive scoped drafting tools. Source tools require an explicitly bound canonical checkout, selected branch, frozen baseline, task ownership and a per-checkout writer lease. Baseline changes await agent and process quiescence.
 
+The workflow projects committed records into Markdown beside its database. Immutable artifact files preserve each submitted revision; version and stage indexes expose current state. SQLite remains the transaction authority, so a file error can be repaired from a committed command receipt rather than duplicating the operation. Manual edits to exported files are not imported.
+
+The R&D panel retains a standard Session reference and embeds the shared Conversation renderer. This preserves native reasoning, tool presentation and stream handling without a second transcript projection. Its own composer admits input through scoped business checks. Workflow context uses a separately logged `rd-context` message, so the human request stays readable.
+
 ## Alternatives considered
 
 Modifying the core agent loop would couple business approvals to upstream model execution. An additive workflow service keeps business state independent. Separate normalized feature tables would support finer concurrency; a single local project aggregate keeps this unpublished pilot transactionally simple at the cost of conservative conflicts.

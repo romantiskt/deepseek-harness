@@ -296,6 +296,8 @@ export interface ProjectState {
 }
 /** Initial read plus current membership used by the workbench. */
 export interface WorkbenchSnapshot {
+  /** Absolute Markdown directory on the execution host, empty for an in-memory store. */
+  documentDirectory: string
   /** Authorized project aggregate. */
   project: ProjectState
   /** Public project membership. */

@@ -457,6 +457,8 @@ export type ConversationSlotProps =
 
 /** Inputs shared by main and embedded Conversation content occurrences. */
 export interface ConversationContentInputProps {
+  /** Omit input controls when the embedding host supplies its own authorized composer. */
+  hideComposer?: boolean
   variant: 'main' | 'embedded'
   phase: 'settling' | 'hero' | 'active'
   hero: boolean

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { bindSnapshotSelector } from '@deepseek-ai/dsh-client-test-runtime'
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { createWorkbenchStore } from '../src/client/workbench-store.ts'
@@ -25,6 +25,7 @@ it('selectingHistoryDoesNotAdvanceWorkflow and focusModePreservesDraft through v
     roles: ['product' as const],
   }
   const snapshot: WorkbenchSnapshot = {
+    documentDirectory: '/example/artifacts/project',
     actor,
     members: [actor],
     stages: workflowTemplate,
@@ -61,12 +62,13 @@ it('selectingHistoryDoesNotAdvanceWorkflow and focusModePreservesDraft through v
   const chat = createSnapshotStore<ChatView>({
     sessionId: '',
     status: 'idle',
-    messages: [],
     error: '',
     loading: false,
     context: '',
   })
   const execute = vi.fn()
+  const openDocumentFolder = vi.fn()
+  const renderFactorySlot = vi.fn(() => <div data-testid="native-conversation" />)
   const props: Partial<WorkbenchProps> = {
     view: 'versions',
     t: key => zh[key as keyof typeof zh] ?? key,
@@ -75,6 +77,8 @@ it('selectingHistoryDoesNotAdvanceWorkflow and focusModePreservesDraft through v
     useModel: bindSnapshotSelector(model),
     useChat: bindSnapshotSelector(chat),
     execute,
+    openDocumentFolder,
+    renderFactorySlot,
     selectContext: vi.fn(),
     send: vi.fn(),
     stop: vi.fn(),
@@ -96,6 +100,13 @@ it('selectingHistoryDoesNotAdvanceWorkflow and focusModePreservesDraft through v
   expect(execute).not.toHaveBeenCalled()
   expect(snapshot.project.versions[0]?.status).toBe('planning')
   expect(view.getSnapshot().stage).toBe(5)
+  act(() => { chat.set({ ...chat.getSnapshot(), sessionId: 'native-session', status: 'running' }) })
+  expect(screen.getByTestId('native-conversation')).toBeTruthy()
+  expect(renderFactorySlot).toHaveBeenCalledWith('rd.conversation', {})
+  fireEvent.click(screen.getByRole('button', { name: zh.artifacts }))
+  fireEvent.click(screen.getByRole('button', { name: zh.documentFolder }))
+  expect(openDocumentFolder).toHaveBeenCalledWith(expect.objectContaining({ versionId: 'version', stageId: 'feedback' }))
+  expect(screen.getByText('/example/artifacts/project/versions/version')).toBeTruthy()
   model.set({ ...model.getSnapshot(), error: 'STALE_REVISION' })
   fireEvent.click(screen.getByRole('button', { name: zh.newVersion }))
   expect(within(screen.getByRole('dialog')).getByRole('alert').textContent).toContain('STALE_REVISION')

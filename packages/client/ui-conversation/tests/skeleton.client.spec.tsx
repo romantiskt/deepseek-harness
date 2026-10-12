@@ -124,6 +124,8 @@ function mount(
   workspaceRows: WorkspaceView[] = [{ ...workspace('one'), sessionIds: [SID] }],
   retargetWorkspace = vi.fn(async (_workspaceId: WorkspaceId) => {}),
   options: {
+    /** Embedded hosts may provide their own authorized input controls. */
+    hideComposer?: boolean
     /** Explicit undefined exercises the shell before a Session is selected. */
     sessionId?: SessionId | undefined
     /** When true, mimic overlay:true chain siblings (hidden fallback + takeover). */
@@ -352,7 +354,7 @@ function mount(
     )) as ConversationContentProps['useFactorySlot']
     return (
       <FactoryViewsTestContext.Provider value={common}>
-        <ConversationContent {...({ ...common, ...runtimeProps, ...input, useFactorySlot })} />
+        <ConversationContent {...({ ...common, ...runtimeProps, ...input, hideComposer: options.hideComposer === true, useFactorySlot })} />
       </FactoryViewsTestContext.Provider>
     )
   }) as ConversationSlotProps['renderFactorySlot']
@@ -520,6 +522,13 @@ describe('ConversationRoot resident composer', () => {
     expect(b.slotCalls).toContain('conversation.session.header.actions')
     expect(b.slotCalls).toContain('conversation.session.header.utilities')
     expect(b.slotCalls).toContain('conversation.session.header.corner')
+  })
+
+  it('keeps native conversation views when the embedding host supplies its own composer', () => {
+    const b = mount(sessionSnapshotOf(), undefined, undefined, { hideComposer: true })
+    expect(b.view.container.querySelector('[data-conversation-scroll]')).not.toBeNull()
+    expect(b.view.container.querySelector('[data-composer-seat]')).toBeNull()
+    expect(b.view.queryByTestId('view-chat')).not.toBeNull()
   })
 
   it('sticky composer seat wraps the whole overlay chain, not only the fallback stack', () => {

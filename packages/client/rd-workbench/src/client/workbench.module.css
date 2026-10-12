@@ -643,26 +643,6 @@
   }
 }
 
-.message {
-  margin-bottom: 20px;
-  font-size: 13px;
-  line-height: 1.9;
-  overflow-wrap: anywhere;
-}
-.message strong {
-  display: block;
-  color: var(--dsw-alias-link);
-  margin-bottom: 6px;
-  font-size: 11px;
-}
-.message > div {
-  white-space: pre-wrap;
-}
-.userMessage {
-  padding: 14px 16px;
-  background: var(--dsw-alias-bg-module-platform);
-  border-radius: var(--dsw-radius-md);
-}
 .todoList {
   display: flex;
   flex-wrap: wrap;
@@ -693,4 +673,25 @@
 }
 .business small {
   overflow-wrap: anywhere;
+}
+
+.workflowGuide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-base);
+  font-size: 13px;
+}
+.workflowGuide strong { font-weight: 500; }
+.workflowGuide p { margin: 6px 0 0; color: var(--dsw-alias-label-secondary); }
+.documentActions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.documentPath { overflow-wrap: anywhere; color: var(--dsw-alias-label-secondary); font-size: 13px; }
+.documentPath strong { font-weight: 500; }
+.chatBody:has([data-conversation-content]) { display: flex; padding: 0; overflow: hidden; }
+.chatBody > [data-conversation-content] { flex: 1; min-height: 0; }
+@media (max-width: 720px) {
+  .workflowGuide { flex-wrap: wrap; }
 }

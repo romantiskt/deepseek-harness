@@ -38,6 +38,10 @@ The R&D bundle mounts this service. For custom compositions, mount the package w
 | -------------- | -------- | ------------------------------------------------------ |
 | `databasePath` | required | Absolute SQLite file; its parent is created privately. |
 
+Every committed command materializes Markdown under `artifacts/<project-id>/` beside the database: a project index, immutable `artifacts/<artifact-id>.md` files, and six stage documents plus an index under `versions/<version-id>/`. Each file includes its local folder path and file-manager commands. Existing projects are exported on their first read after startup. In-memory databases do not export files.
+
+SQLite remains authoritative. Submit revisions in the workbench; editing generated files does not update business state. File errors are reported after the transaction commits; retrying the same command repairs the export without duplicating records. Indexes update with each revision, while existing artifact files retain their contents.
+
 ---
 
 <a id="understand-the-implementation"></a>

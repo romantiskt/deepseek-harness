@@ -20,7 +20,7 @@ import type { WorkflowScope, EntityId, Workspace } from '@deepseek-ai/dsh-rd-con
 import { requirementDraftSchema } from '@deepseek-ai/dsh-rd-contracts'
 import { WorkspaceFiles, inspectWorkspace } from './workspaces.ts'
 import { contextText, parseScope, sessionKey, userRequest } from './sessions.ts'
-import type { ChatSnapshot, ChatMessage } from './types.ts'
+import type { ChatSnapshot, ChatMessage, ConversationState } from './types.ts'
 import { checkOutput } from './check-output.ts'
 
 /** Runtime limits configured by the profile. */
@@ -146,6 +146,43 @@ export class RdRuntime extends TypertRemoteService {
     return workspace
   }
   /**
+   * Resolve an authorized Session for the native Harness conversation renderer.
+   * @param token - member credential.
+   * @param scopeJson - selected business context.
+   * @param taskId - explicit development task, empty for product conversations.
+   * @returns Session identity and runtime state without scanning its transcript.
+   */
+  @Remote
+  conversation(token: string, scopeJson: string, taskId: string): ConversationState {
+    const scope = parseScope(scopeJson)
+    const project = this.ctx.rdWorkflow.context(token, scope)
+    const version = project.versions.find(v => v.id === scope.versionId)
+    const key = sessionKey(scope, version?.baselines.at(-1)?.number ?? 0, taskId)
+    const id = this.ctx.rdWorkflow.sessionBinding(token, key) ?? ''
+    const binding = this.bindings.get(id)
+    return {
+      sessionId: id,
+      status: binding?.handle.agent.status === 'running' ? 'running' : binding?.error ? 'error' : 'idle',
+      error: binding?.error ?? '',
+    }
+  }
+  /**
+   * Open only a generated workflow directory on the execution host.
+   * @param token - member credential.
+   * @param scopeJson - authorized project and optional version context.
+   * @returns completion after the operating system accepts the request.
+   */
+  @Remote
+  async openDocumentFolder(token: string, scopeJson: string): Promise<void> {
+    const scope = parseScope(scopeJson)
+    this.ctx.rdWorkflow.context(token, scope)
+    const root = this.ctx.rdWorkflow.snapshot(token).documentDirectory
+    if (!root) throw new Error('DOCUMENTS_UNAVAILABLE')
+    const path = scope.versionId ? join(root, 'versions', encodeURIComponent(scope.versionId).replaceAll('.', '%2E')) : root
+    const opener = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'explorer.exe' : 'xdg-open'
+    await promisify(execFile)(opener, [path], { timeout: this.config.checkTimeoutMs })
+  }
+  /**
    * @param token - member session. @param scopeJson - chosen business context. @param taskId - explicit task or
    * empty for product conversation. @returns owned transcript and live text.
    */
@@ -220,9 +257,13 @@ export class RdRuntime extends TypertRemoteService {
     const actor = this.ctx.rdWorkflow.snapshot(token).actor
     // The context is an explicit logged message, so restart reproduces the exact model input.
     const context = contextText(project, binding.scope, actor, this.config.maxContextChars)
+    binding.handle.agent.inject(createUserMessage({
+      content: [{ type: 'text', text: context }],
+      source: { kind: 'rd-context', form: 'instructions' },
+    }))
     binding.handle.agent.followup(
       createUserMessage({
-        content: [{ type: 'text', text: `${context}\n\n用户请求：\n${text}` }],
+        content: [{ type: 'text', text }],
         source: { kind: 'user' },
       }),
     )
@@ -540,6 +581,24 @@ export class RdRuntime extends TypertRemoteService {
       },
       render: (_args: object, value: { result: string }) => [{ type: 'text' as const, text: value.result }],
     }
+    agentCtx.tools.register(defineTool({
+      name: 'rd_save_document',
+      description: 'Save a Markdown document for the selected workflow stage. This creates an immutable material revision, not an approval or evidence that work was executed.',
+      parameters: {
+        title: { type: 'string', required: true },
+        text: { type: 'string', required: true },
+      },
+      output,
+      execute: async (args) => {
+        const snapshot = this.ctx.rdWorkflow.snapshot(credential())
+        const receipt = await this.ctx.rdWorkflow.execute(credential(), JSON.stringify({
+          commandId: randomUUID(), scope, expectedRevision: snapshot.project.revision,
+          payload: { type: 'artifact.createRevision', title: args.title, text: args.text, kind: 'document' },
+        }))
+        if (receipt.status === 'rejected') throw new Error(receipt.errorCode)
+        return { result: JSON.stringify({ artifactId: receipt.entityId, path: join(snapshot.documentDirectory, 'artifacts', `${receipt.entityId}.md`) }) }
+      },
+    }))
     agentCtx.tools.register(
       defineTool({
         name: 'rd_get_context',

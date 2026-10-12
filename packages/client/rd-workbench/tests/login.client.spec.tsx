@@ -19,7 +19,7 @@ function renderLogin(status: 'login' | 'setup' = 'login') {
   const view = createWorkbenchStore().create()
   const model = createSnapshotStore<ModelView>({ status, snapshot: null, error: '', busy: false })
   const chat = createSnapshotStore<ChatView>({
-    sessionId: '', status: 'idle', messages: [], error: '', loading: false, context: '',
+    sessionId: '', status: 'idle', error: '', loading: false, context: '',
   })
   const props: Partial<WorkbenchProps> = {
     t: key => zh[key as keyof typeof zh] ?? key,
@@ -49,7 +49,7 @@ it.each(['INVALID_LOGIN', 'INVALID_LOGIN (gateway/internal)'])(
     const password = screen.getByLabelText(/密码/)
     fireEvent.change(username, { target: { value: 'local-member' } })
     fireEvent.change(password, { target: { value: 'private-test-password' } })
-    act(() => model.set({ ...model.getSnapshot(), error }))
+    act(() => { model.set({ ...model.getSnapshot(), error }) })
     expect(screen.getByRole('alert').textContent).toBe('账号或密码不正确，请核对本地账号后重试')
     expect(username).toHaveProperty('value', 'local-member')
     expect(password).toHaveProperty('value', 'private-test-password')
@@ -59,7 +59,7 @@ it.each(['INVALID_LOGIN', 'INVALID_LOGIN (gateway/internal)'])(
 
 it('asks an expired member session to sign in again', () => {
   const model = renderLogin()
-  act(() => model.set({ ...model.getSnapshot(), error: 'UNAUTHENTICATED (gateway/internal)' }))
+  act(() => { model.set({ ...model.getSnapshot(), error: 'UNAUTHENTICATED (gateway/internal)' }) })
   expect(screen.getByRole('alert').textContent).toBe('登录已失效，请重新登录')
 })
 

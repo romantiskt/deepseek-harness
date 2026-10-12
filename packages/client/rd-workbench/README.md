@@ -30,6 +30,8 @@ The bundle mounts this package without package-specific configuration. Sign in t
 
 The first visit creates an administrator only when the project has no members. Later visits use existing local accounts. Invalid credentials show retry guidance without clearing the form; expired sessions ask the member to sign in again. Account instructions are in the [pilot guide](../../../docs/operations/ai-rd-pilot.md#members).
 
+The next-action guide locates the first unfinished node without approving it. Before creating a version, select an unscheduled requirement directly. The artifact panel saves Markdown revisions and opens their local folder; each artifact displays its file path.
+
 ---
 
 <a id="understand-the-implementation"></a>
@@ -39,7 +41,7 @@ The first visit creates an administrator only when the project has no members. L
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The [model](src/client/model.ts) calls authenticated Remote methods and preserves idempotency keys across ambiguous failures. The [workbench](src/client/workbench.tsx) displays actual Harness transcripts, durable artifacts and role-specific forms. Source edits run on the host runtime.
+The [model](src/client/model.ts) calls authenticated Remote methods and preserves idempotency keys across ambiguous failures. The [workbench](src/client/workbench.tsx) displays actual Harness transcripts, durable artifacts and role-specific forms. Source edits run on the host runtime. The conversation retains a native Session reference and uses the shared Conversation renderer; switching scope, task or baseline releases the previous subscription. The workflow composer continues to submit through the authenticated runtime.
 
 </details>
 
@@ -77,7 +79,7 @@ Opening a panel does not alter model input. The runtime owns session and baselin
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- The initial pilot uses Chinese copy in both locale dictionaries. The browser polls active transcripts; enterprise SSO and collaborative editing are deferred.
+- The initial pilot uses Chinese copy in both locale dictionaries. Enterprise SSO and collaborative editing are deferred.
 
 <a id="dev-note"></a>
 

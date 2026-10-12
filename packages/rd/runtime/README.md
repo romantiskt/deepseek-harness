@@ -38,6 +38,8 @@ Mount through the [bundle patch](../../bundle/rd-workbench/cordis.patch.yml), wh
 | `checkTimeoutMs`  | 120000                | Local check timeout.                     |
 | `processGraceMs`  | 3000                  | Termination grace interval.              |
 
+Conversation metadata resolves the member-owned Session; native Harness subscriptions deliver history, reasoning, tool activity and streaming output. Workflow context is logged as a separate context message, leaving the human request readable. Saving through `rd_save_document` creates a Markdown artifact and returns its local path without approving a workflow node. The folder action opens the authorized project or version directory on the host machine.
+
 ---
 
 <a id="understand-the-implementation"></a>

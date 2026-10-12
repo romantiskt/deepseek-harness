@@ -52,8 +52,9 @@ it('resumes the owned conversation with new file tools when its task changes wor
     let sessionId: string | undefined
     const dispose = vi.fn(async () => {})
     const followup = vi.fn()
+    const inject = vi.fn()
     const makeHandle = (id: string) => ({
-      agent: { id, status: 'idle', followup, whenIdle: async () => {}, cancel: () => {} },
+      agent: { id, status: 'idle', followup, inject, whenIdle: async () => {}, cancel: () => {} },
       dispose,
     })
     const create = vi.fn(async (options: { sessionId: string }) => makeHandle(options.sessionId))
@@ -93,6 +94,9 @@ it('resumes the owned conversation with new file tools when its task changes wor
     expect(resume).toHaveBeenCalledTimes(1)
     expect(dispose).toHaveBeenCalledTimes(1)
     expect(followup).toHaveBeenCalledTimes(2)
+    expect(followup.mock.calls[0]?.[0]).toMatchObject({ content: [{ type: 'text', text: 'Read selected source' }], source: { kind: 'user' } })
+    expect(inject).toHaveBeenCalledTimes(2)
+    expect(inject.mock.calls[0]?.[0]).toMatchObject({ source: { kind: 'rd-context', form: 'instructions' } })
   } finally {
     await cleanup()
     f.repo.close()

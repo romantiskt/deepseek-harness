@@ -38,6 +38,8 @@ kind: 'package-reference'
 | `checkTimeoutMs`  | 120000                | 本地检查超时。               |
 | `processGraceMs`  | 3000                  | 终止进程的宽限时间。         |
 
+会话元数据定位当前成员拥有的 Session；Harness 原生订阅提供历史、思考过程、工具活动和流式输出。业务上下文作为独立上下文消息入日志，用户请求保持可读。通过 `rd_save_document` 保存会创建 Markdown 产物并返回本地路径，不会批准流程节点。文件夹操作在主机上打开已授权的项目或版本目录。
+
 ---
 
 <a id="understand-the-implementation"></a>

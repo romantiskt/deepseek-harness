@@ -2,7 +2,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import { randomBytes, createHash, scryptSync, timingSafeEqual } from 'node:crypto'
 import { chmodSync, mkdirSync } from 'node:fs'
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { parseCommand } from '@deepseek-ai/dsh-rd-contracts'
 import type { WorkflowCommand } from '@deepseek-ai/dsh-rd-contracts'
 import type {
@@ -21,6 +21,7 @@ import { applyCommand, newId } from './workflow-engine.ts'
 import { WorkflowError, requireCondition, requireRole } from './access-policy.ts'
 import { readMember, readProject, readReceipt } from './codec.ts'
 import { workflowTemplate } from './workflow-template.ts'
+import { WorkflowDocuments } from './documents.ts'
 
 /** @param value - token or command bytes. @returns non-reversible lookup digest. */
 function digest(value: string): string {
@@ -60,8 +61,11 @@ function auditState(project: ProjectState): string {
 export class WorkflowRepository {
   /** Single SQLite connection owning synchronous transactions. */
   private readonly db: DatabaseSync
+  /** Files derived only from committed business records; in-memory tests do not write files. */
+  private readonly documents: WorkflowDocuments | undefined
   /** @param path - local SQLite filename or isolated in-memory test store. */
   constructor(path: string) {
+    this.documents = path === ':memory:' ? undefined : new WorkflowDocuments(join(dirname(path), 'artifacts'))
     if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true, mode: 0o700 })
     this.db = new DatabaseSync(path)
     if (path !== ':memory:') chmodSync(path, 0o600)
@@ -145,7 +149,11 @@ export class WorkflowRepository {
   logout(token: string): void {
     this.db.prepare('DELETE FROM logins WHERE hash=?').run(digest(token))
   }
-  /** @param actor - authenticated server actor. @returns project and members without secrets. */
+  /**
+   * Read the authorized project and materialize its Markdown files.
+   * @param actor - authenticated server actor.
+   * @returns project, members and document directory without credentials.
+   */
   snapshot(actor: AuthActor): WorkbenchSnapshot {
     const current = this.currentActor(actor)
     const row = this.db.prepare('SELECT data FROM projects WHERE id=?').get(current.member.projectId)
@@ -154,7 +162,9 @@ export class WorkflowRepository {
       .prepare('SELECT data FROM members WHERE project_id=?')
       .all(current.member.projectId)
       .map(r => readMember(String(r.data)))
-    return { project: readProject(String(row.data)), members, actor: current.member, stages: workflowTemplate }
+    const project = readProject(String(row.data))
+    const documentDirectory = this.documents?.sync(project) ?? ''
+    return { project, members, actor: current.member, stages: workflowTemplate, documentDirectory }
   }
   /**
    * @param input - exact retry envelope. @param actor - current authenticated member. @returns an already
@@ -172,10 +182,18 @@ export class WorkflowRepository {
     return { ...readReceipt(String(row.receipt)), status: 'replayed' }
   }
   /**
-   * @param input - typed or decoded command, revalidated at this public write entry. @param actor -
-   * authenticated server actor. @returns committed, replayed or rejected result.
+   * Commit business state and publish its Markdown files; failed publication leaves the receipt retryable.
+   * @param input - typed or decoded command, revalidated at this public write entry.
+   * @param actor - authenticated server actor.
+   * @returns committed, replayed or rejected result after document publication.
    */
   dispatch(input: CommandEnvelope<WorkflowCommand>, actor: AuthActor): CommandReceipt {
+    const receipt = this.commit(input, actor)
+    if (receipt.status !== 'rejected') this.snapshot(actor)
+    return receipt
+  }
+  /** Commit independently of file publication so a failed export can be retried idempotently. */
+  private commit(input: CommandEnvelope<WorkflowCommand>, actor: AuthActor): CommandReceipt {
     const command = parseCommand(input)
     const rejection = (code: string): CommandReceipt => ({
       commandId: command.commandId,

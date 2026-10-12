@@ -111,13 +111,21 @@ export class RdWorkflow extends TypertRemoteService {
   snapshot(token: string): WorkbenchSnapshot {
     return this.repository.snapshot(this.repository.authenticate(token))
   }
-  /** @param token - member session. @param json - command envelope validated before mutation. @returns durable result. */
+  /**
+   * Execute an authorized command, repairing document export when replaying an already committed receipt.
+   * @param token - member session.
+   * @param json - command envelope validated before mutation.
+   * @returns durable result after Markdown publication.
+   */
   @Remote
   async execute(token: string, json: string): Promise<CommandReceipt> {
     const command = parseCommand(JSON.parse(json)),
       actor = this.repository.authenticate(token)
     const replay = this.repository.replay(command, actor)
-    if (replay) return replay
+    if (replay) {
+      this.repository.snapshot(actor)
+      return replay
+    }
     const project = this.repository.validateCommandTargets(command, actor)
     const payload = command.payload
     const candidate =

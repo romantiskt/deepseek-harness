@@ -37,7 +37,7 @@ The `parseCommand` export rejects malformed envelopes. Import record types from 
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The [record declarations](src/types.ts) describe immutable scope references. Zod validates untrusted input before the workflow applies its role and lifecycle checks.
+The [record declarations](src/types.ts) describe immutable scope references. Zod validates untrusted input before the workflow applies its role and lifecycle checks. `WorkbenchSnapshot.documentDirectory` identifies the generated Markdown directory, or an empty string for an in-memory repository; it is response metadata and is not persisted in the project.
 
 </details>
 

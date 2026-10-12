@@ -7,7 +7,7 @@ import { resolve, join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
 import type { CommandReceipt, LoginResult, WorkbenchSnapshot } from '../../packages/rd/contracts/src/types.ts'
-import type { ChatSnapshot } from '../../packages/rd/runtime/src/types.ts'
+import type { ChatSnapshot, ConversationState } from '../../packages/rd/runtime/src/types.ts'
 
 it('replays real AI drafting, saves its artifact and retains the transcript without a provider key', async () => {
   const root = resolve(import.meta.dirname, '../..')
@@ -76,9 +76,16 @@ it('replays real AI drafting, saves its artifact and retains the transcript with
     expect(final.requirements).toHaveLength(1)
     expect(final.requirements[0]?.versionId).toBe(version.entityId)
     expect(final.versions[0]?.status).toBe('planning')
+    expect(chat?.messages.find(message => message.role === 'user')?.text).not.toContain('projectId')
     const restored = await rpc<ChatSnapshot>('rdRuntime/chat', { token, scopeJson, taskId: '' })
     expect(restored.sessionId).toBe(sessionId)
     expect(restored.messages).toEqual(chat?.messages)
+    const native = await rpc<ConversationState>('rdRuntime/conversation', { token, scopeJson, taskId: '' })
+    expect(native).toEqual({ sessionId, status: 'idle', error: '' })
+    const directory = (await state()).documentDirectory
+    expect(await readFile(join(directory, 'artifacts', `${draft?.id}.md`), 'utf8')).toContain(expected.acceptance)
+    for (const stage of ['requirements', 'design', 'development', 'testing', 'release', 'feedback'])
+      expect(await readFile(join(directory, 'versions', version.entityId, `${stage}.md`), 'utf8')).toContain('本地文件夹')
   } finally {
     // The launcher waits synchronously for its CLI child, so signal the local process group.
     const signal = (name: NodeJS.Signals) => {

@@ -33,7 +33,9 @@
         "@deepseek-ai/dsh-client-ui-renderer",
         "@deepseek-ai/dsh-client-store",
         "@deepseek-ai/dsh-client-ui-primitives",
-        "@deepseek-ai/dsh-client-ui-slots"
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-client-ui-conversation"
       ]
     }
   },
@@ -62,7 +64,10 @@
     "@deepseek-ai/dsh-rd-workflow": "workspace:*",
     "@deepseek-ai/dsh-rd-runtime": "workspace:*",
     "@deepseek-ai/dsh-client-test-runtime": "workspace:*",
-    "@deepseek-ai/dsh-util-crypto": "workspace:*"
+    "@deepseek-ai/dsh-util-crypto": "workspace:*",
+    "@deepseek-ai/dsh-api-session-controller": "workspace:*",
+    "@deepseek-ai/dsh-client-ui-conversation": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*"
   },
   "files": [
     "lib/index.js",
