@@ -69,8 +69,8 @@ it('resumes the owned conversation with new file tools when its task changes wor
       beforeSubmission: () => () => {},
       beforeScopeChange: () => () => {},
       assertWritable: () => {},
-    } as Context['rdWorkflow'])
-    ctx.provide('agents', { create, resume } as Context['agents'])
+    })
+    ctx.provide('agents', { create, resume })
     ctx.provide('agentDefaultModel', { currentSelection: () => ({}) } as Context['agentDefaultModel'])
     ctx.provide('tools', {} as Context['tools'])
     ctx.provide('sessionQuery', {} as Context['sessionQuery'])
